@@ -16,11 +16,12 @@ exports.getPosts =  (req,res)=> {
 exports.uploadPosts = async (req,res,next)=> {
 
     const post = new Posts({
-        // imageId:req.file.filename,
+        imageId:req.file.filename,
         userId:'3edder3r45554trf',
     })
 
     const [data,err] = await asyncWrap(Posts.create(post))
+
     // if(err) return res.status(500).json({msg:'Error',err})
     if(err) return next(AppError(500,null,err))
     

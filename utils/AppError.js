@@ -1,13 +1,16 @@
 module.exports = AppError =(statusCode,msg , err )=>{
+    // console.log(err);
 
     const message = msg || err.message
-    const completeError = new Error(message)
+    const errorStack = new Error(message)
     
     const error = {
         statusCode,
+        name:err?.name || 'Generic error',
         message,
         isOperational:true,
-        stack: completeError
+        errorStack,
+        err
 
     }
     return error

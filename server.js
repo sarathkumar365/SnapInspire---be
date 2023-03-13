@@ -1,14 +1,11 @@
+const dotenv = require('dotenv').config({path:'./configs.env'})
+
 const mongoose = require('mongoose');
 const app = require('./app')
 
-// configs
-const port = 3000;
-const DB = 'mongodb://127.0.0.1:27017/ArcaneAura'
-
-
 // database connection
 mongoose
-  .connect(DB, {
+  .connect(process.env.Local_DB, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -18,6 +15,6 @@ mongoose
     console.log(err);
    })
 
-app.listen(port,()=>{
-    console.log(`app started listening at http://localhost:${port}`);
+app.listen(process.env.PORT,()=>{
+    console.log(`app started listening at http://localhost:${process.env.PORT}`);
 });

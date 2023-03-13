@@ -26,7 +26,7 @@ app.use('/posts',upload.single('image'), postsRoute)
 
 // UNDEFINED ROUTES
 app.all('*',(req, res,next) => {
-    const err = AppError(404,'oops, no such route found', null)
+    const err = AppError(404,'oops, no such route found 🔴', null)
     next(err)
 })
 
