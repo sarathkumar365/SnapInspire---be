@@ -21,7 +21,7 @@ const errMsgGenerator = (errMsg,errName) => {
 
 }
 const sendProdErrors = (err,res)=> {
-    console.log('prodErrors 🚧');
+    // console.log('prodErrors 🚧',err);
     const errMsg = errMsgGenerator(err.message,err.name)
 
     

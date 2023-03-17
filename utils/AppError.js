@@ -1,5 +1,4 @@
 module.exports = AppError =(statusCode,msg , err )=>{
-    // console.log(err);
 
     const message = msg || err.message
     const errorStack = new Error(message)

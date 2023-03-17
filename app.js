@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const path =require('path')
 const cors  = require('cors')
 const {upload,storage} = require('./configs/multerConfigs')
 const globalErrorController = require('./controllers/errorController')
@@ -14,7 +15,13 @@ const Posts = require('./models/postsSchema')
 // CORS 
 app.use(cors())
 
- 
+ // set STATIC folders
+//  console.log(path.join(__dirname, 'public'))
+// app.use(express.static(path.join(__dirname, 'public')))
+
+// to make it available like : http://localhost:port/images, then do the folllowing
+ app.use('/images',express.static(path.join(__dirname, 'public/images')))
+
 // parse application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: false }))
 
