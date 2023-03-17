@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Posts = require('../models/postsSchema')
 const asyncWrap = require('../utils/catchAsyncErrors')
 const AppError = require('../utils/AppError');
-const catchAsyncErrors = require('../utils/catchAsyncErrors');
+const sendResponse = require('../utils/factoryFunctions');
 
 // route for development purpose 
 const deleteAllPosts = async ()=>{
@@ -11,11 +11,10 @@ const deleteAllPosts = async ()=>{
     console.log(data,err);
 }
 
-exports.getPosts =  async (req,res)=> {
+exports.getAllPosts =  async (req,res)=> {
 
     // Get all posts
     const [data,err] = await asyncWrap(Posts.find())
-    console.log(err);
 
 
     if(err) return next(AppError(409,null,err))
@@ -24,6 +23,7 @@ exports.getPosts =  async (req,res)=> {
         return res.json({
             status:200,
             msg:'Sucess',
+            count:data.length,
             data
         })
     }
@@ -54,12 +54,39 @@ exports.uploadPosts = async (req,res,next)=> {
     return res.status(200).json({msg:'Success',data})
 }
 
-exports.liked = async (req,res,next)=>{
-    const imageId = `${req.params['imageId'].split(':')[1] + '.jpg'}`
+exports.applaud = async (req,res,next)=>{
     
-    const [post,err] = await asyncWrap(Posts.find({imageId}).exec())
-    console.log(post,err);
+    const id = req.params['id']
+    const incORdec = Number(req.params['incORdec'])
 
-    res.send('hai')
+    // filter out invalid params. Only accept 1 or 0
+    if(!(incORdec === 1 || incORdec === 0))  return next(AppError(500,"Invalid params passed for applauds",null))    
+
+    // get the current applauds count
+    const [currentApplaudsCount,err] = await asyncWrap(Posts.findById(id).select('applaud'))
+
+    // return if currentApplaudsCount = 0 && incORdec = 0
+    // this ensures that applauds cannot go sub zero
+    if(currentApplaudsCount.applaud === 0 && incORdec === 0 ) {
+            sendResponse(res,'success',200, {
+                data:{
+                    message:'applauds cannot go below zero 👎'
+                }
+            })
+            return
+        }
+    
+    // update the applaud field
+    const filter = {_id:id}
+    const update = { applaud : incORdec === 1? currentApplaudsCount.applaud + 1 : currentApplaudsCount.applaud - 1}
+    const [post,posterr] = await asyncWrap(Posts.findOneAndUpdate(filter,update,{returnOriginal:false}))
+
+    // err for getting currentApplaudsCount 
+    if(err) return next(AppError(500,null,err))
+
+    // err for updating document
+    if(posterr) return next(AppError(500,null,err))
+    
+    if(post) return sendResponse(res,'success',200,post)
 }
 

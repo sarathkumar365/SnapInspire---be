@@ -15,13 +15,15 @@ const errMsgGenerator = (errMsg,errName) => {
             return msgForUser = `The field for ${errMsg.split(':')[1].split(':')[0]} is empty.`
         case 'Generic error':
             return msgForUser = errMsg
+        case 'MulterError':
+            return msgForUser = `something is wrong with posts uploading functionality 🖼️. Please contact your administrator`
         default:
             break;
     }
 
 }
 const sendProdErrors = (err,res)=> {
-    // console.log('prodErrors 🚧',err);
+    console.log('prodErrors 🚧',err.name);
     const errMsg = errMsgGenerator(err.message,err.name)
 
     

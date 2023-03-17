@@ -6,7 +6,7 @@ const {upload,storage} = require('./configs/multerConfigs')
 const globalErrorController = require('./controllers/errorController')
 const AppError = require('./utils/AppError')
 
-// routes
+// routes 
 const postsRoute = require('./routes/postsRoutes')
 
 // SCHEMAS
@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
 // ROUTES
-app.use('/posts',upload.single('image'), postsRoute)
+app.use('/posts',upload.single('post'), postsRoute)
 
 // UNDEFINED ROUTES
 app.all('*',(req, res,next) => {

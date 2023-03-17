@@ -5,8 +5,8 @@ const router = express.Router();
 // CONTROLLERS
 const postsController = require('../controllers/postsController')
 
-router.get('/',postsController.getPosts)
+router.get('/',postsController.getAllPosts)
 router.post('/',postsController.uploadPosts)
-router.patch('/:imageId',postsController.liked)
+router.patch('/:id/:incORdec',postsController.applaud)
 
 module.exports = router

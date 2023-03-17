@@ -14,7 +14,7 @@ const postsSchema = Schema({
         type:Date,
         default:Date.now
     },
-    likes:{
+    applaud:{
         type:Number,
         default:0
     }
