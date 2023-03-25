@@ -13,6 +13,8 @@ const errMsgGenerator = (errMsg,errName) => {
     switch (errName) {
         case 'ValidationError':
             return msgForUser = `The field for ${errMsg.split(':')[1].split(':')[0]} is empty.`
+        case 'MongoServerError':
+            return 
         case 'Generic error':
             return msgForUser = errMsg
         case 'MulterError':
@@ -23,14 +25,27 @@ const errMsgGenerator = (errMsg,errName) => {
 
 }
 const sendProdErrors = (err,res)=> {
-    console.log('prodErrors 🚧',err.name);
+    console.log('prodErrors 🚧',err);
+    
+    if(err.message.startsWith('E11000')) {
+        let errorInTheseFields = Object.keys(err.err.keyValue).map(fields => fields)
+
+        Msg = `Duplicate values found for ${errorInTheseFields} 2️⃣`
+
+        return res.status(500).json({
+            status: 'fail',
+            message:Msg || 'Something went wrong, please contact admin 👨‍💼 🕥'
+        })
+    }
+
+
     const errMsg = errMsgGenerator(err.message,err.name)
 
     
 
     res.status(500).json({
         status: 'fail',
-        message:errMsg || 'Something went wrong 🕥'
+        message:errMsg || 'Something went wrong, please contact admin 👨‍💼 🕥'
     })
 }
 

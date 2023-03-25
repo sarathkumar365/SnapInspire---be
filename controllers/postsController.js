@@ -23,7 +23,7 @@ exports.getAllPosts =  async (req,res)=> {
         return res.json({
             status:200,
             msg:'Sucess',
-            count:data.length,
+            length:data.length,
             data
         })
     }

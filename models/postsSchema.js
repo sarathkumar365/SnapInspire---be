@@ -6,6 +6,10 @@ const postsSchema = Schema({
         type:String,
         required:true
     },
+    portrait:{
+        type:Boolean,
+        default:false
+    },
     userId:{
         type:String,
         required:true

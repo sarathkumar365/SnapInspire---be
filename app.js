@@ -7,7 +7,9 @@ const globalErrorController = require('./controllers/errorController')
 const AppError = require('./utils/AppError')
 
 // routes 
+const authRoute = require('./routes/authRoute')
 const postsRoute = require('./routes/postsRoutes')
+const UsersRoute = require('./routes/userRoutes')
 
 // SCHEMAS
 const Posts = require('./models/postsSchema')
@@ -29,7 +31,9 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
 // ROUTES
+app.use('/auth',authRoute)
 app.use('/posts',upload.single('post'), postsRoute)
+app.use('/users',UsersRoute)
 
 // UNDEFINED ROUTES
 app.all('*',(req, res,next) => {
