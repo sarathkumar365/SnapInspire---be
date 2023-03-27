@@ -13,6 +13,8 @@ const errMsgGenerator = (errMsg,errName) => {
     switch (errName) {
         case 'ValidationError':
             return msgForUser = `The field for ${errMsg.split(':')[1].split(':')[0]} is empty.`
+        case 'TokenExpiredError':
+            return msgForUser = `oops, session expires. Please login again 🕥` 
         case 'MongoServerError':
             return 
         case 'Generic error':
@@ -41,11 +43,10 @@ const sendProdErrors = (err,res)=> {
 
     const errMsg = errMsgGenerator(err.message,err.name)
 
-    
-
     res.status(500).json({
         status: 'fail',
-        message:errMsg || 'Something went wrong, please contact admin 👨‍💼 🕥'
+        message:errMsg || 'Something went wrong, please contact admin 👨‍💼 🕥',
+        type: err.name
     })
 }
 

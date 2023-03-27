@@ -1,9 +1,7 @@
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
 const User = require('../models/userSchema')
 const AppError = require('../utils/AppError')
 const catchAsyncErrors = require('../utils/catchAsyncErrors')
-const { sendResponse } = require('../utils/factoryFunctions')
+const {sendResponse,checkPassValid,createSendToken} = require('../utils/factoryFunctions');
 
 
 exports.login = async (req,res,next) => {
@@ -22,19 +20,37 @@ exports.login = async (req,res,next) => {
            return next(AppError(404,'No user found for this email address, please check your email address 🔴',null)) 
     
     // verify if the password is correct
+    // get password from DB
     const [savedPassword,passwordErr ]= await catchAsyncErrors(User.find({email})
             .select('password'))
 
-    if(!(savedPassword[0].password === password)) 
-            return next(AppError(404, 'Invalid password, please try again 🚧'))  
-    
-    // send JWT token
-    const [token,tokenErr] = await catchAsyncErrors (jwt.sign({userId},process.env.JWT_SECRET))
+    const isValid = await checkPassValid(password,savedPassword[0].password)
 
-    res.status(200).json({
-        msg:'logged in successfully',
-        token
-    })
+    
+
+    // invalid password
+    if(!isValid) return next(AppError(404,'Invalid password 🚧',null))
+
+    // create token and send to user
+    const [token,refreshToken] = await createSendToken(savedPassword[0]._id)
+
+    // successfully logged in
+    const data = {
+        status: 'success',
+        msg:'Logged in successfully',
+        userId:savedPassword[0]._id,
+        token,
+        refreshToken
+    }
+
+    sendResponse(res,'success',200,data)
+}
+
+// generate token
+
+const getToken = (req, res,next) => {
+
+
 }
 
 

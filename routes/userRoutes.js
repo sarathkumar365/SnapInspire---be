@@ -9,4 +9,7 @@ router.post('/', userController.createUser);
 router.get('/', userController.getAllUsers);
 router.delete('/:id',userController.deleteUser)
 
+// ADMIN
+router.get('/deleteall', userController.deleteAllUsers);
+
 module.exports = router

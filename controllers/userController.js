@@ -3,8 +3,17 @@ const bcrypt = require('bcrypt');
 const User = require('../models/userSchema')
 const catchAsyncErrors = require('../utils/catchAsyncErrors')
 const AppError = require('../utils/AppError');
-const sendResponse = require('../utils/factoryFunctions');
+const {sendResponse} = require('../utils/factoryFunctions');
 
+// delete all users
+exports.deleteAllUsers = async (req,res,next)=>{
+    // code to delete all posts
+    const [data,err] = await catchAsyncErrors(User.deleteMany({}) )
+
+    if(err) return next(AppError(500,'Posts deletion err.', err))
+
+    res.json({msg:'success',data})
+}
 
 exports.createUser = async(req,res,next) =>{
 
@@ -55,7 +64,7 @@ exports.getAllUsers =  async (req,res)=> {
         return res.json({
             status:200,
             msg:'Sucess',
-            data:'No posts found, please upload some posts 🖼️'
+            data:'No users found, please create some 🖼️'
         })
     }
 }

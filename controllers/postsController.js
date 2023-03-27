@@ -5,10 +5,13 @@ const AppError = require('../utils/AppError');
 const sendResponse = require('../utils/factoryFunctions');
 
 // route for development purpose 
-const deleteAllPosts = async ()=>{
+exports.deleteAllPosts = async (req,res,next)=>{
     // code to delete all posts
     const [data,err] = await asyncWrap(Posts.deleteMany({}) )
-    console.log(data,err);
+
+    if(err) return next(AppError(500,'Posts deletion err.', err))
+
+    res.json({msg:'success',data})
 }
 
 exports.getAllPosts =  async (req,res)=> {
@@ -37,12 +40,11 @@ exports.getAllPosts =  async (req,res)=> {
     }
 }
 
-exports.uploadPosts = async (req,res,next)=> {
-    // console.log(req.file,req.body);
+exports.uploadPosts = async (req,res,next) => {
 
     const post = new Posts({
         imageId:req.file.filename,
-        userId:'3edder3r45554trf',
+        userId:req.currentUser._id,
     })
 
     const [data,err] = await asyncWrap(Posts.create(post))
