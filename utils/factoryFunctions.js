@@ -30,7 +30,7 @@ exports.checkPassValid = async (incomingPassword,savedPassword) => {
     if(match) {
         //login
         return true
-    }
+    } 
 
     return false;
 }
