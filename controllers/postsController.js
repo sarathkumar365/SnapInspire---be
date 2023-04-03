@@ -1,8 +1,23 @@
 const mongoose = require('mongoose');
+const sizeOf = require('image-size')
+const path = require('path')
+
 const Posts = require('../models/postsSchema')
 const asyncWrap = require('../utils/catchAsyncErrors')
 const AppError = require('../utils/AppError');
 const sendResponse = require('../utils/factoryFunctions');
+const catchAsyncErrors = require('../utils/catchAsyncErrors');
+
+const findPortrait0rNot = (imageId)=>{
+    const dimensions = sizeOf(path.join(__dirname, `../public/images/${imageId}`))
+
+    // image is landscape
+    if(dimensions.width > dimensions.height) return false
+
+    // image is portrait
+    return true 
+}
+
 
 // route for development purpose 
 exports.deleteAllPosts = async (req,res,next)=>{
@@ -13,6 +28,7 @@ exports.deleteAllPosts = async (req,res,next)=>{
 
     res.json({msg:'success',data})
 }
+
 
 exports.getAllPosts =  async (req,res)=> {
 
@@ -42,6 +58,7 @@ exports.getAllPosts =  async (req,res)=> {
 
 exports.uploadPosts = async (req,res,next) => {
 
+    
     const post = new Posts({
         imageId:req.file.filename,
         userId:req.currentUser._id,
@@ -51,9 +68,24 @@ exports.uploadPosts = async (req,res,next) => {
 
     // if(err) return res.status(500).json({msg:'Error',err})
     if(err) return next(AppError(500,null,err))
-    
+
+    // find portrait or not 
+    const isPortrait = findPortrait0rNot(data.imageId)
+
+    // update the corresponding images portrait field
+    const filter = {_id:data._id}
+    const update = { portrait : isPortrait }
+    const [portraitUpdated,portraitUpdatedErr] = await asyncWrap(Posts.findOneAndUpdate(filter,update,{returnOriginal:false}))
+
+    if(portraitUpdatedErr) return next(AppError(500,null,portraitUpdatedErr))
+
+    const d = {
+        portraitUpdated,
+        data
+    }
+
     // if no error, return
-    return res.status(200).json({msg:'Success',data})
+    return res.status(200).json({msg:'Success',d})
 }
 
 exports.applaud = async (req,res,next)=>{

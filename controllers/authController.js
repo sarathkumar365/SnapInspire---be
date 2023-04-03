@@ -13,11 +13,12 @@ exports.login = async (req,res,next) => {
     const {email,password} = req.body
 
     // check if such user exists
-    const [ifUserExists,err] = await catchAsyncErrors(User.find({email}))
-    const userId = ifUserExists[0]._id
-
+    const [ifUserExists,ifUserExistsErr] = await catchAsyncErrors(User.find({email}))
+    
     if(ifUserExists.length <= 0) 
-           return next(AppError(404,'No user found for this email address, please check your email address 🔴',null)) 
+    return next(AppError(404,'No user found for this email address, please check your email address 🔴',null)) 
+    
+    const userId = ifUserExists[0]._id
     
     // verify if the password is correct
     // get password from DB

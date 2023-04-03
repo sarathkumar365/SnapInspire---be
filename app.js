@@ -31,6 +31,9 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
 
 // ROUTES
+app.use('/ping',(req, res, next) =>{
+    res.status(200).send('ping')
+})
 app.use('/auth',authRoute)
 app.use('/posts',upload.single('post'), postsRoute)
 app.use('/users',UsersRoute)
