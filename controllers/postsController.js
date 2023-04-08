@@ -56,9 +56,7 @@ exports.getAllPosts =  async (req,res)=> {
     }
 }
 
-exports.uploadPosts = async (req,res,next) => {
-
-    
+exports.uploadPosts = async (req,res,next) => {    
     const post = new Posts({
         imageId:req.file.filename,
         userId:req.currentUser._id,
@@ -89,6 +87,8 @@ exports.uploadPosts = async (req,res,next) => {
 }
 
 exports.applaud = async (req,res,next)=>{
+
+    console.log(req.cookies);
     
     const id = req.params['id']
     const incORdec = Number(req.params['incORdec'])
@@ -121,6 +121,10 @@ exports.applaud = async (req,res,next)=>{
     // err for updating document
     if(posterr) return next(AppError(500,null,err))
     
-    if(post) return sendResponse(res,'success',200,post)
+    // if(post) return sendResponse(res,'success',200,post)
+    if(post) res.status(200).json({
+        msg:'success',
+        data:post
+    })
 }
 

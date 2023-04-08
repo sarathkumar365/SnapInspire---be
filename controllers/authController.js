@@ -30,7 +30,7 @@ exports.login = async (req,res,next) => {
     
 
     // invalid password
-    if(!isValid) return next(AppError(404,'Invalid password 🚧',null))
+    if(!isValid) return next(AppError(401,'Invalid password 🚧',null))
 
     // create token and send to user
     const [token,refreshToken] = await createSendToken(savedPassword[0]._id)
@@ -39,12 +39,19 @@ exports.login = async (req,res,next) => {
     const data = {
         status: 'success',
         msg:'Logged in successfully',
+        userName:ifUserExists[0].name,
         userId:savedPassword[0]._id,
         token,
-        refreshToken
     }
 
-    sendResponse(res,'success',200,data)
+    // sendResponse(res,'success',200,data)
+    // res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 5  * 60  * 1000 }).json(data); // 5 mins 
+    res.cookie('jwt', refreshToken, 
+    { maxAge: 5  * 60  * 1000, httpOnly: true }).json(data) // 5 mins 
+    // res.json(data);
+
+   
+
 }
 
 // generate token

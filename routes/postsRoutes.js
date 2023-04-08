@@ -7,7 +7,7 @@ const {verifyToken} = require('../utils/factoryFunctions')
 // CONTROLLERS
 const postsController = require('../controllers/postsController')
 
-router.get('/',postsController.getAllPosts)
+router.get('/',verifyToken,postsController.getAllPosts)
 router.post('/',verifyToken,postsController.uploadPosts)
 router.patch('/:id/:incORdec',postsController.applaud)
 

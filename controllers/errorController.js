@@ -21,6 +21,8 @@ const errMsgGenerator = (errMsg,errName) => {
             return msgForUser = errMsg
         case 'MulterError':
             return msgForUser = `something is wrong with posts uploading functionality 🖼️. Please contact your administrator`
+        case 'JsonWebTokenError':
+            return msgForUser = `oops, please login again`
         default:
             break;
     }
@@ -43,7 +45,7 @@ const sendProdErrors = (err,res)=> {
 
     const errMsg = errMsgGenerator(err.message,err.name)
 
-    res.status(500).json({
+    res.status(err.statusCode || 500).json({
         status: 'fail',
         message:errMsg || 'Something went wrong, please contact admin 👨‍💼 🕥',
         type: err.name

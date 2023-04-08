@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path =require('path')
 const cors  = require('cors')
+const cookieParser = require('cookie-parser');
 const {upload,storage} = require('./configs/multerConfigs')
 const globalErrorController = require('./controllers/errorController')
 const AppError = require('./utils/AppError')
@@ -14,9 +15,21 @@ const UsersRoute = require('./routes/userRoutes')
 // SCHEMAS
 const Posts = require('./models/postsSchema')
 
-// CORS 
-app.use(cors())
 
+
+// CORS 
+// app.use(cors())
+// app.use(cors({
+//     origin: 'http://localhost:5173'
+//   }));
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+  }));
+
+// cookie parser
+app.use(cookieParser());
+  
  // set STATIC folders
 //  console.log(path.join(__dirname, 'public'))
 // app.use(express.static(path.join(__dirname, 'public')))
