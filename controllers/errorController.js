@@ -34,9 +34,11 @@ const sendProdErrors = (err,res)=> {
     if(err.message.startsWith('E11000')) {
         let errorInTheseFields = Object.keys(err.err.keyValue).map(fields => fields)
 
-        Msg = `Duplicate values found for ${errorInTheseFields} 2️⃣`
+        Msg = `This ${errorInTheseFields} is already taken`
 
-        return res.status(500).json({
+        const sttusCode = err.message.startsWith('E11000 duplicate key error') ? 409 : 500
+
+        return res.status(sttusCode).json({
             status: 'fail',
             message:Msg || 'Something went wrong, please contact admin 👨‍💼 🕥'
         })

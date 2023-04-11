@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken')
 const User = require('../models/userSchema')
 const AppError = require('../utils/AppError')
 const catchAsyncErrors = require('../utils/catchAsyncErrors')
@@ -56,8 +57,19 @@ exports.login = async (req,res,next) => {
 
 // generate token
 
-const getToken = (req, res,next) => {
+exports.refresh = async (req, res,next) => {
+    console.log(req.headers);
+    res.send("ok")    
+    
+    // const userId = 'adsad'
 
+    // const [accessToken,refreshToken] = await createSendToken(savedPassword[0]._id)
+
+
+
+    // res.status(200).json({
+    //     accessToken,refreshToken
+    // })
 
 }
 

@@ -39,7 +39,7 @@ exports.createUser = async(req,res,next) =>{
 
     if(err) return next(AppError(500,null,err))    
 
-    sendResponse(res,'success',200,data)
+    sendResponse(res,'success',201,data)
 
 }
 
