@@ -29,7 +29,8 @@ const errMsgGenerator = (errMsg,errName) => {
 
 }
 const sendProdErrors = (err,res)=> {
-    console.log('prodErrors 🚧',err);
+    console.log('prodErrors 🚧');
+    console.log(err);
     
     if(err.message.startsWith('E11000')) {
         let errorInTheseFields = Object.keys(err.err.keyValue).map(fields => fields)

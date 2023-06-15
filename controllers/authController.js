@@ -58,19 +58,14 @@ exports.login = async (req,res,next) => {
 // generate token
 
 exports.refresh = async (req, res,next) => {
-    console.log(req.headers);
-    res.send("ok")    
     
-    // const userId = 'adsad'
+    console.log(req.headers);
 
-    // const [accessToken,refreshToken] = await createSendToken(savedPassword[0]._id)
+    // const token =  jwt.sign({userId},process.env.JWT_SECRET,{
+    //     expiresIn: process.env.JWT_EXPIRES_IN,
+    //     })
 
-
-
-    // res.status(200).json({
-    //     accessToken,refreshToken
-    // })
-
+res.send('ok')
 }
 
 
