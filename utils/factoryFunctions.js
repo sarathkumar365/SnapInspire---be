@@ -55,21 +55,6 @@ exports.createSendToken =  async (userId) => {
     return [token,refreshToken]
 }
 
-// verify jwt token
-// exports.verifyToken = (req,res,next)=>{
-//     const bearerHeader = req.headers['authorization']
-
-//     if(typeof bearerHeader != undefined){
-//         const BearerToken = bearerHeader.split('')[1]
-//         req.token = BearerToken
-
-//         next()
-//     } else {
-//         res.status(403).json({msg: "please login first"})
-//     }
-// }
-
-
 exports.verifyToken = async (req, res, next) => {
     console.log(req.headers);
     // 1) Get token and check if it exists
@@ -87,7 +72,7 @@ exports.verifyToken = async (req, res, next) => {
         decoded = jwt.verify(token,process.env.JWT_SECRET);
       } catch(err) {
         // err
-        if(err) return next(AppError(500,'JWT verification failed',err))
+        if(err) return next(AppError(401,'JWT verification failed',err))
       }
     
     // 3) Check if user still exists

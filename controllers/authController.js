@@ -6,6 +6,8 @@ const {sendResponse,checkPassValid,createSendToken} = require('../utils/factoryF
 
 
 exports.login = async (req,res,next) => {
+    console.log('login');
+
 
     // check if user and pass field exists
     if(!req.body.email || !req.body.password) 
@@ -44,7 +46,6 @@ exports.login = async (req,res,next) => {
         userId:savedPassword[0]._id,
         token,
     }
-
     // sendResponse(res,'success',200,data)
     // res.cookie('refreshToken', refreshToken, { httpOnly: true, maxAge: 5  * 60  * 1000 }).json(data); // 5 mins 
     res.cookie('jwt', refreshToken, 
@@ -58,14 +59,24 @@ exports.login = async (req,res,next) => {
 // generate token
 
 exports.refresh = async (req, res,next) => {
+    // console.log(req.headers.cookie);
+    let cookieVal 
+    req.headers.cookie ? cookieVal = req.headers.cookie.split('=')[1] : cookieVal = 'none'
+
+
+    if(cookieVal === 'none') return next(AppError(401,'login again 🚧',500));
     
-    console.log(req.headers);
+    isRefreshVerified = jwt.verify(cookieVal,process.env.JWT_SECRET_REFRESH)
+    currentUserId = isRefreshVerified.userId
 
-    // const token =  jwt.sign({userId},process.env.JWT_SECRET,{
-    //     expiresIn: process.env.JWT_EXPIRES_IN,
-    //     })
+    // const refreshToken =  jwt.sign(currentUserId,process.env.JWT_SECRET)
+    const newAccessToken =  jwt.sign(currentUserId,process.env.JWT_SECRET)
 
-res.send('ok')
+
+
+res.json({
+    newAccessToken
+})
 }
 
 
