@@ -87,7 +87,7 @@ exports.uploadPosts = async (req,res,next) => {
 }
 
 exports.applaud = async (req,res,next)=>{
-
+    console.log('cookies are');
     console.log(req.cookies);
     
     const id = req.params['id']
@@ -126,5 +126,7 @@ exports.applaud = async (req,res,next)=>{
         msg:'success',
         data:post
     })
+
+    
 }
 
