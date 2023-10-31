@@ -22,7 +22,10 @@ const userSchema = new mongoose.Schema({
     },
     refreshTokens: {
         type: Array,
-    }
+    },
+    myApplauds: {
+        type:Array,
+    },
 });
     
     const User = mongoose.model('User', userSchema);
