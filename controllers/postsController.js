@@ -3,6 +3,8 @@ const sizeOf = require('image-size')
 const path = require('path')
 
 const Posts = require('../models/postsSchema')
+const User = require('../models/userSchema')
+
 const asyncWrap = require('../utils/catchAsyncErrors')
 const AppError = require('../utils/AppError');
 const sendResponse = require('../utils/factoryFunctions');
@@ -86,19 +88,73 @@ exports.uploadPosts = async (req,res,next) => {
     return res.status(200).json({msg:'Success',d})
 }
 
-exports.applaud = async (req,res,next)=>{
-    console.log('cookies are');
-    console.log(req.cookies);
+checkApplauded = async (userId,postId) => {
+    // const userId =  req.params['userId']
+    // const postId =  req.params['postId']
+
+    // 1. check if current user has already applauded the current post
+
+    // const [addUserApplaud,addUserApplaudErr] = await asyncWrap(User.updateOne({_id:userId},{$push:{myApplauds:postId}}))
+
+    const [applaudedOrNot,applaudedOrNotErr] = await asyncWrap(User.findOne({_id:userId}).select('-password').select('-refreshTokens'))
+
+    // console.log(applaudedOrNot.myApplauds);
+
+    const allApplauds = applaudedOrNot.myApplauds
     
-    const id = req.params['id']
+    //check if the post is already applauded by the user
+    if(allApplauds.includes(postId))  {
+        // return res.status(200).json({
+        //     'applauded':true
+        // })
+
+        return true
+    } else {
+        // else return not applauded status
+        // return res.status(404).json({
+        //     'applauded':false
+        // })
+
+        return false
+    }
+    
+    // if(!allApplauds.includes(postId)) return next(AppError(404,"The user has not liked this post yet",null))
+
+}
+exports.applaud = async (req,res,next) => {
+
+    const postId = req.params['postId']
     const incORdec = Number(req.params['incORdec'])
 
+    //     // check if current user has already applauded for this post
+
+    if (await checkApplauded(req.currentUser,postId)){
+        return res.status(200).json({
+            alreadyApplauded:true,
+            applaudedBy:req.currentUser.name
+
+        }) 
+    } else {
+
+           
+    // 1. add the applauded post to current users myApplauds array
+
+    const [addUserApplaud,addUserApplaudErr] = await asyncWrap(User.updateOne({_id:req.currentUser._id},{$push:{myApplauds:postId}}))
+
+    if(addUserApplaud) res.status(200).json({
+        message:'post applauded ㊗️'
+    })
+
+    if(addUserApplaudErr) return next(AppError(400,'failed adding post to current user myApplauds',null))
+
+    // 2. add +1 to total applauds count for the current post
+    
     // filter out invalid params. Only accept 1 or 0
     if(!(incORdec === 1 || incORdec === 0))  return next(AppError(500,"Invalid params passed for applauds",null))    
-
+    
     // get the current applauds count
-    const [currentApplaudsCount,err] = await asyncWrap(Posts.findById(id).select('applaud'))
-
+    const [currentApplaudsCount,err] = await asyncWrap(Posts.findById(postId).select('applaud'))
+    
     // return if currentApplaudsCount = 0 && incORdec = 0
     // this ensures that applauds cannot go sub zero
     if(currentApplaudsCount.applaud === 0 && incORdec === 0 ) {
@@ -110,8 +166,8 @@ exports.applaud = async (req,res,next)=>{
             return
         }
     
-    // update the applaud field
-    const filter = {_id:id}
+        // update the applaud field
+    const filter = {_id:postId}
     const update = { applaud : incORdec === 1? currentApplaudsCount.applaud + 1 : currentApplaudsCount.applaud - 1}
     const [post,posterr] = await asyncWrap(Posts.findOneAndUpdate(filter,update,{returnOriginal:false}))
 
@@ -121,12 +177,78 @@ exports.applaud = async (req,res,next)=>{
     // err for updating document
     if(posterr) return next(AppError(500,null,err))
     
-    // if(post) return sendResponse(res,'success',200,post)
-    if(post) res.status(200).json({
-        msg:'success',
-        data:post
-    })
 
-    
+
+    //  if everything went well,return alreadyApplauded:true
+
+    res.status(200).json({
+        alreadyApplauded:false,
+        applaudedBy:req.currentUser.name
+    }) 
+    }
+
 }
+
+
+// exports.applaud = async (req,res,next) => {
+//     console.log('cookies are');
+//     // console.log(req.currentUser);
+    
+    // const postId = req.params['postId']
+    // const incORdec = Number(req.params['incORdec'])
+
+//     // check if current user has already applauded for this post
+    
+//     if(await checkApplauded(req.currentUser._id,postId)) return res.status(200).json({
+//         message:'User already applauded for this post',
+//         alreadyApplauded:true
+//     }) 
+
+//     // 1. add +1 to total applauds count for the current post
+    
+//     // filter out invalid params. Only accept 1 or 0
+//     if(!(incORdec === 1 || incORdec === 0))  return next(AppError(500,"Invalid params passed for applauds",null))    
+    
+//     // get the current applauds count
+//     const [currentApplaudsCount,err] = await asyncWrap(Posts.findById(postId).select('applaud'))
+    
+//     // return if currentApplaudsCount = 0 && incORdec = 0
+//     // this ensures that applauds cannot go sub zero
+//     if(currentApplaudsCount.applaud === 0 && incORdec === 0 ) {
+//             sendResponse(res,'success',200, {
+//                 data:{
+//                     message:'applauds cannot go below zero 👎'
+//                 }
+//             })
+//             return
+//         }
+    
+//         // update the applaud field
+//     const filter = {_id:postId}
+//     const update = { applaud : incORdec === 1? currentApplaudsCount.applaud + 1 : currentApplaudsCount.applaud - 1}
+//     const [post,posterr] = await asyncWrap(Posts.findOneAndUpdate(filter,update,{returnOriginal:false}))
+
+//     // err for getting currentApplaudsCount 
+//     if(err) return next(AppError(500,null,err))
+
+//     // err for updating document
+//     if(posterr) return next(AppError(500,null,err))
+    
+//     // if(post) return sendResponse(res,'success',200,post)
+//     // if(post) res.status(200).json({
+//     //     msg:'success',
+//     //     data:post
+//     // })
+    
+//     // 2. add the applauded post to current users myApplauds array
+//     const [addUserApplaud,addUserApplaudErr] = await asyncWrap(User.updateOne({_id:req.currentUser._id},{$push:{myApplauds:postId}}))
+
+//     if(addUserApplaud) res.status(200).json({
+//         message:'post applauded ㊗️'
+//     })
+
+//     if(addUserApplaudErr) return next(AppError(400,'failed adding post to current user myApplauds',null))
+
+
+// }
 
