@@ -122,9 +122,10 @@ checkApplauded = async (userId,postId) => {
 
 }
 exports.applaud = async (req,res,next) => {
-
+console.log('api call');
     const postId = req.params['postId']
-    const incORdec = Number(req.params['incORdec'])
+    // const incORdec = Number(req.params['incORdec'])
+    const incORdec = 1
 
     //     // check if current user has already applauded for this post
 
@@ -141,7 +142,7 @@ exports.applaud = async (req,res,next) => {
 
     const [addUserApplaud,addUserApplaudErr] = await asyncWrap(User.updateOne({_id:req.currentUser._id},{$push:{myApplauds:postId}}))
 
-    if(addUserApplaud) res.status(200).json({
+    if(addUserApplaud) return res.status(200).json({
         message:'post applauded ㊗️'
     })
 
@@ -181,7 +182,7 @@ exports.applaud = async (req,res,next) => {
 
     //  if everything went well,return alreadyApplauded:true
 
-    res.status(200).json({
+    return res.status(200).json({
         alreadyApplauded:false,
         applaudedBy:req.currentUser.name
     }) 

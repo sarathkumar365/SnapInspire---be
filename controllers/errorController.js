@@ -58,7 +58,7 @@ const sendProdErrors = (err,res)=> {
 
 
 module.exports = globalErrorController = (err,req,res,next) => {
-    // console.log(err);
+    console.log(err);
 
     if(process.env.NODE_ENV === 'production') {
         sendProdErrors(err,res);

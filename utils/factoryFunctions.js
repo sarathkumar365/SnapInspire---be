@@ -56,11 +56,12 @@ exports.createSendToken =  async (userId) => {
 }
 
 exports.verifyToken = async (req, res, next) => {
-    // console.log(req.headers);
+    
+
     // 1) Get token and check if it exists
     let token
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer'))     
-                token = req.headers.authorization.split(' ')[1]
+    token = req.headers.authorization.split(' ')[1]
 
     if (!token) return next(AppError(401, 'You are not logged in! Please log in to get access.', null))
     
