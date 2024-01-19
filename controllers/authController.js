@@ -6,7 +6,8 @@ const {sendResponse,checkPassValid,createSendToken} = require('../utils/factoryF
 
 
 exports.login = async (req,res,next) => {
-    console.log('login');
+    
+    console.log('LOGIN ✅ 🏁');
 
 
     // check if user and pass field exists
@@ -37,11 +38,11 @@ exports.login = async (req,res,next) => {
 
     // create token and send to user
     const [token,refreshToken] = await createSendToken(savedPassword[0]._id)
-    console.log(ifUserExists);
+    // console.log(ifUserExists);
     // successfully logged in
     const data = {
         status: 'success',
-        msg:'Logged in successfully',
+        msg:'Logged in successfully ✅ 🏁',
         userName:ifUserExists[0].name,
         userId:savedPassword[0]._id,
         myApplauds:ifUserExists[0].myApplauds,

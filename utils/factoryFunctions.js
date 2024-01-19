@@ -19,7 +19,7 @@ const saveRefreshToken = async (refreshTokens,userId) => {
     const [tokensArr,tokensArrErr] = 
         await catchAsyncErrors(User.updateOne({_id:userId},{ $push : {refreshTokens : refreshTokens }}))
     
-        if(tokensArrErr) next(AppErr(500,'refreshtoken error',tokensArrErr))
+        if(tokensArrErr) next(AppError(500,'refreshtoken error',tokensArrErr))
 
     return tokensArr
 }
@@ -50,7 +50,7 @@ exports.createSendToken =  async (userId) => {
     if(!refreshToken) return next(AppError(500,'refreshToken generation failed, please contact the administrator',null))
 
     // save refreshToken in DB
-    const saved = await saveRefreshToken(refreshToken,userId)
+    // const saved = await saveRefreshToken(refreshToken,userId)
 
     return [token,refreshToken]
 }

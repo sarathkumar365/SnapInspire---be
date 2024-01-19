@@ -121,30 +121,60 @@ checkApplauded = async (userId,postId) => {
     // if(!allApplauds.includes(postId)) return next(AppError(404,"The user has not liked this post yet",null))
 
 }
+
+const removeApplaud = async (userId,postId) => {
+
+      const filter = { _id: userId }
+      const update = { $pull: { myApplauds: postId } }
+      const [removeApplaud,removeApplaudErr] = await asyncWrap(User.findOneAndUpdate(filter,update,{returnOriginal:false}))
+  
+      if(removeApplaud) {
+        console.log('applauds removed from user array');
+        console.log(removeApplaud);
+
+        return 1;
+      }
+      else {
+        console.log(removeApplaudErr);
+        return 0;
+      }
+
+
+
+}
+
+
 exports.applaud = async (req,res,next) => {
-console.log('api call');
+    console.log('API call for applauding a post ');
+
     const postId = req.params['postId']
-    // const incORdec = Number(req.params['incORdec'])
-    const incORdec = 1
+    const incORdec = Number(req.params['incORdec'])
+    // const incORdec = 1
 
     //     // check if current user has already applauded for this post
 
     if (await checkApplauded(req.currentUser,postId)){
-        return res.status(200).json({
-            alreadyApplauded:true,
-            applaudedBy:req.currentUser.name
+        // 1. remove the current post from user myApplauds array
+        if(removeApplaud(req.currentUser._id,postId)) {
+            return res.status(200).json({
+                applaudsRemoved:true,
+                applaudsRemovedBy:req.currentUser.name,
+                updatedApplaudsArr: await asyncWrap(User.findById({_id:req.currentUser._id})).myApplauds
+            })  
+        }   else {
+            return next(AppError(500,'Something went wrong in removing ypur applauds',null))
+        }
 
-        }) 
+        
     } else {
 
            
     // 1. add the applauded post to current users myApplauds array
 
     const [addUserApplaud,addUserApplaudErr] = await asyncWrap(User.updateOne({_id:req.currentUser._id},{$push:{myApplauds:postId}}))
-
-    if(addUserApplaud) return res.status(200).json({
-        message:'post applauded ㊗️'
-    })
+    // if(addUserApplaud) return res.status(200).json({
+    //     message:'post applauded ㊗️'
+    // })
 
     if(addUserApplaudErr) return next(AppError(400,'failed adding post to current user myApplauds',null))
 
@@ -159,12 +189,11 @@ console.log('api call');
     // return if currentApplaudsCount = 0 && incORdec = 0
     // this ensures that applauds cannot go sub zero
     if(currentApplaudsCount.applaud === 0 && incORdec === 0 ) {
-            sendResponse(res,'success',200, {
-                data:{
-                    message:'applauds cannot go below zero 👎'
-                }
-            })
-            return
+
+        return res.status(200).json ({
+            message:'applauds cannot go below zero 👎'
+        })
+            
         }
     
         // update the applaud field
@@ -183,10 +212,11 @@ console.log('api call');
     //  if everything went well,return alreadyApplauded:true
 
     return res.status(200).json({
-        alreadyApplauded:false,
-        applaudedBy:req.currentUser.name
+        message:'post applaudedd ㊗️',
+        updatedApplaudsArr : addUserApplaud.myApplauds
     }) 
-    }
+    
+}
 
 }
 

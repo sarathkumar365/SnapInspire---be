@@ -9,7 +9,7 @@ const postsController = require('../controllers/postsController')
 
 router.get('/',verifyToken,postsController.getAllPosts)
 router.post('/',verifyToken,postsController.uploadPosts)
-router.get('/:postId/',verifyToken,postsController.applaud)
+router.get('/:postId/:incORdec',verifyToken,postsController.applaud)
 // router.get('/:userId/:postId',postsController.checkApplauded)
 
 // ADMIN
