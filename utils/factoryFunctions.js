@@ -56,11 +56,16 @@ exports.createSendToken =  async (userId) => {
 }
 
 exports.verifyToken = async (req, res, next) => {
+<<<<<<< HEAD
     console.log(req.headers.cookie);
+=======
+    
+
+>>>>>>> 57fe7df7a5f03a412055407cff21f3dedf3789ae
     // 1) Get token and check if it exists
     let token
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer'))     
-                token = req.headers.authorization.split(' ')[1]
+    token = req.headers.authorization.split(' ')[1]
 
     if (!token) return next(AppError(401, 'You are not logged in! Please log in to get access.', null))
     
@@ -76,13 +81,13 @@ exports.verifyToken = async (req, res, next) => {
       }
     
     // 3) Check if user still exists
-    const currentUser = await User.findById(decoded.userId).select('-password')
+    const currentUser = await User.findById(decoded.userId).select('-password').select('-refreshTokens')
     
     if (!currentUser)     
             return next(AppError(401,'The user belonging to this token does no longer exist.',null))
 
     // if everything OK, put token in req
     req.currentUser = currentUser
-    console.log('Token verified');
+    console.log(`Token verified, CURRENT USER: ${currentUser.name}`);
     next()
 }

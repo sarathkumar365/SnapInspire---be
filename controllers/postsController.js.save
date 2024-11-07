@@ -1,0 +1,139 @@
+const mongoose = require('mongoose');
+const sizeOf = require('image-size')
+const path = require('path')
+
+const Posts = require('../models/postsSchema')
+const asyncWrap = require('../utils/catchAsyncErrors')
+const AppError = require('../utils/AppError');
+const sendResponse = require('../utils/factoryFunctions');
+const catchAsyncErrors = require('../utils/catchAsyncErrors');
+
+const findPortrait0rNot = (imageId)=>{
+    const dimensions = sizeOf(path.join(__dirname, `../public/images/${imageId}`))
+
+    // image is landscape
+    if(dimensions.width > dimensions.height) return false
+
+    // image is portrait
+    return true 
+}
+
+
+// route for development purpose 
+exports.deleteAllPosts = async (req,res,next)=>{
+    // code to delete all posts
+    const [data,err] = await asyncWrap(Posts.deleteMany({}) )
+
+    if(err) return next(AppError(500,'Posts deletion err.', err))
+
+    res.json({msg:'success',data})
+}
+
+
+exports.getAllPosts =  async (req,res)=> {
+
+    // Get all posts
+    const [data,err] = await asyncWrap(Posts.find())
+
+
+    if(err) return next(AppError(409,null,err))
+
+    if(data.length > 0) {
+        return res.json({
+            status:200,
+            msg:'Sucess',
+            length:data.length,
+            data
+        })
+    }
+
+    if(data.length === 0) {
+        return res.json({
+            status:200,
+            msg:'Sucess',
+            data:'No posts found, please upload some posts 🖼️'
+        })
+    }
+}
+
+exports.uploadPosts = async (req,res,next) => {    
+    const post = new Posts({
+        imageId:req.file.filename,
+        userId:req.currentUser._id,
+    })
+
+    const [data,err] = await asyncWrap(Posts.create(post))
+
+    // if(err) return res.status(500).json({msg:'Error',err})
+    if(err) return next(AppError(500,null,err))
+
+    // find portrait or not 
+    const isPortrait = findPortrait0rNot(data.imageId)
+
+    // update the corresponding images portrait field
+    const filter = {_id:data._id}
+    const update = { portrait : isPortrait }
+    const [portraitUpdated,portraitUpdatedErr] = await asyncWrap(Posts.findOneAndUpdate(filter,update,{returnOriginal:false}))
+
+    if(portraitUpdatedErr) return next(AppError(500,null,portraitUpdatedErr))
+
+    const d = {
+        portraitUpdated,
+        data
+    }
+
+    // if no error, return
+    return res.status(200).json({msg:'Success',d})
+}
+
+exports.applaud = async (req,res,next)=>{
+    console.log('cookies are');
+    console.log(req.cookies);
+    
+    const id = req.params['id']
+    const incORdec = Number(req.params['incORdec'])
+    const userId = Number(req.params['userId'])
+
+    // filter out invalid params. Only accept 1 or 0
+    if(!(incORdec === 1 || incORdec === 0))  return next(AppError(500,"Invalid params passed for applauds",null))    
+
+    // get the current applauds count
+    const [currentApplaudsCount,err] = await asyncWrap(Posts.findById(id).select('applaud'))
+
+    // return if currentApplaudsCount = 0 && incORdec = 0
+    // this ensures that applauds cannot go sub zero
+    if(currentApplaudsCount.applaud === 0 && incORdec === 0 ) {
+            sendResponse(res,'success',200, {
+                data:{
+                    message:'applauds cannot go below zero 👎'
+                }
+            })
+            return
+        }
+    
+    // update the applaud field
+    const filter = {_id:id}
+    const update = { applaud : incORdec === 1? currentApplaudsCount.applaud + 1 : currentApplaudsCount.applaud - 1}
+    const [post,posterr] = await asyncWrap(Posts.findOneAndUpdate(filter,update,{returnOriginal:false}))
+
+    const [currentUserApplauds,currentUserApplauds] = await asyncWrap(User.find())
+    
+    const myApplaudFilter = {_id:userId}
+    const myApplaudUpdate = {}
+    const [myApplauds,myApplaudsErr] = await (User.findOneAndUpdate(myApplaudFilter,myApplaudUpdate,{returnOriginal:false}))
+    
+// err for getting currentApplaudsCount 
+    if(err) return next(AppError(500,null,err))
+
+    // err for updating document
+    if(posterr) return next(AppError(500,null,err))
+    
+    // if(post) return sendResponse(res,'success',200,post)
+    if(post) res.status(200).json({
+        msg:'success',
+        data:post
+    })
+
+    
+}
+
