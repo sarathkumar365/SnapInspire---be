@@ -56,7 +56,7 @@ exports.createSendToken =  async (userId) => {
 }
 
 exports.verifyToken = async (req, res, next) => {
-    console.log(req.headers);
+    console.log(req.headers.cookie);
     // 1) Get token and check if it exists
     let token
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer'))     

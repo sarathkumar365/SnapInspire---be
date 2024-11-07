@@ -7,7 +7,7 @@ const multer = require('multer');
     },
     filename:function(req,file,cb){
         const ext = file.originalname.split('.')[1]
-        const filename = `${'jjkb32jb323ilq21kn' + '-' + Date.now() + '.' + ext}`
+        const filename = `${'image' + '-' + Date.now() + '.' + ext}`
         cb(null, filename)
     }
 })

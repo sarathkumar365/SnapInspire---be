@@ -5,7 +5,7 @@ const app = require('./app')
 
 // database connection
 mongoose
-  .connect(process.env.Local_DB, {
+  .connect(process.env.CONNECTION_STRING, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
